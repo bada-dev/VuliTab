@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "VuliTab",
+  "version": "0.0.0.00..0.0.0.0.0",
+  "description": "Links stuff",
+  "permissions": ["activeTab", "scripting"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icon.png"
+  }
+}
