@@ -2,45 +2,111 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VuliTab</title>
-  <style>
-    body {
-      width: 300px;
-      padding: 20px;
-      font-family: Arial, sans-serif;
-      background-color: #f5f5f5;
-    }
-    h1 {
-      color: #333;
-      font-size: 18px;
-    }
-    button {
-      background-color: #4CAF50;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      width: 100%;
-    }
-    button:hover {
-      background-color: #45a049;
-    }
-    .info {
-      margin-top: 10px;
-      font-size: 12px;
-      color: #666;
-    }
-  </style>
+  <link rel="stylesheet" href="popup.css">
+<!-- POPUP CSS LINK HERE -->
 </head>
 <body>
-  <h1>VuliTab</h1>
-  <p>Track your study time and earn rewards!</p>
-  <button id="startBtn">Start Studying</button>
-  <div class="info">
-    <p>Time spent: <span id="timer">0</span>s</p>
+
+  <!-- ================= LOGIN ================= -->
+  <div class="vt-login" id="loginView">
+    <h1>VuliTab</h1>
+    <p>Log in with your VuliStudy account.</p>
+    <div class="vt-error" id="loginError"></div>
+    <input class="vt-input" id="loginUser" type="text" placeholder="Username" autocomplete="username" autocapitalize="none">
+    <input class="vt-input" id="loginPass" type="password" placeholder="Password" autocomplete="current-password">
+    <button class="vt-btn" id="loginBtn">Log in</button>
+    <div class="vt-login-note">
+      No account yet? VuliTab can't create one — open the <b>VuliStudy</b> app on your phone,
+      create your account there, then log in here with the same username &amp; password.
+    </div>
   </div>
+
+  <!-- ================= APP ================= -->
+  <div id="appView" class="hidden">
+    <div class="vt-header">
+      <div>
+        <div class="vt-greeting" id="greeting">Welcome back</div>
+        <div class="vt-username"><span id="usernameLabel">—</span><span class="vt-badge hidden" id="premiumBadge">VuliStudy+</span></div>
+      </div>
+      <button class="vt-icon-btn" id="logoutBtn" title="Log out">⎋</button>
+    </div>
+
+    <div class="vt-buddy-wrap">
+      <div class="character-area">
+        <div class="character" id="vtCharacter">
+          <div class="character-shadow"></div>
+          <div class="character-body">
+            <div class="character-eyes"><div class="eye"></div><div class="eye"></div></div>
+            <div class="character-mouth"></div>
+          </div>
+          <div id="vtCosmetics"></div>
+        </div>
+      </div>
+      <div class="vt-happy">
+        <div class="vt-happy-label">Happiness: <span id="happyPct">100</span>%</div>
+        <div class="vt-happy-meter"><div class="vt-happy-fill" id="happyFill" style="width:100%"></div></div>
+      </div>
+      <div class="vt-stats">
+        <div class="vt-stat"><b id="statMinutes">0</b><span>minutes</span></div>
+        <div class="vt-stat"><b id="statStreak">0</b><span>day streak</span></div>
+      </div>
+    </div>
+
+    <div class="vt-section">
+      <div class="vt-timer" id="timerDisplay">25:00</div>
+      <div class="vt-session-label" id="sessionLabel">Ready to focus</div>
+
+      <div class="vt-tabs" id="modeTabs">
+        <button class="vt-tab active" data-mode="focus">Focus</button>
+        <button class="vt-tab" data-mode="stopwatch">Stopwatch</button>
+        <button class="vt-tab" data-mode="long">Break</button>
+      </div>
+
+      <div class="vt-duration" id="durationRow">
+        <button class="vt-dur" data-min="15">15m</button>
+        <button class="vt-dur active" data-min="25">25m</button>
+        <button class="vt-dur" data-min="50">50m</button>
+      </div>
+
+      <div class="vt-controls">
+        <button class="vt-btn" id="primaryBtn">Start Focus</button>
+        <button class="vt-btn danger hidden" id="stopBtn">Stop</button>
+      </div>
+
+      <div class="vt-tools">
+        <button class="vt-tool" id="drawTool"><span class="ic">✏️</span><span>Draw on page<small>Annotate this tab</small></span></button>
+        <button class="vt-tool on" id="guardTool"><span class="ic">🛡️</span><span>Distraction guard<small id="guardSub">On</small></span></button>
+        <button class="vt-tool on" id="lockTool"><span class="ic">🔒</span><span>Focus Lock<small id="lockSub">On</small></span></button>
+        <button class="vt-tool" id="reportTool"><span class="ic">📊</span><span>Focus Report<small>Your last session</small></span></button>
+      </div>
+    </div>
+
+    <!-- Focus Report panel -->
+    <div id="reportPanel" class="hidden">
+      <div class="vt-divider"></div>
+      <div class="vt-section">
+        <div class="vt-score" id="reportScore">—</div>
+        <div class="vt-session-label">Focus score (last session)</div>
+        <div class="vt-report-bars" id="reportBars">
+          <div class="vt-rb-prod" style="width:33%"></div>
+          <div class="vt-rb-dist" style="width:33%"></div>
+          <div class="vt-rb-neut" style="width:34%"></div>
+        </div>
+        <div class="vt-report-legend">
+          <span>🟢 <span id="legProd">0m</span> productive</span>
+          <span>🔴 <span id="legDist">0m</span> distracted</span>
+        </div>
+        <div id="historyList" style="margin-top:10px;"></div>
+      </div>
+    </div>
+
+    <div class="vt-foot">
+      Linked to your VuliStudy app — timers stay in sync across phone &amp; browser.
+    </div>
+  </div>
+
+  <div class="vt-toast" id="toast"></div>
   <script src="popup.js"></script>
 </body>
 </html>
