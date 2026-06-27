@@ -1,0 +1,54 @@
+/* add !important everywhere to make it override everything
+*/
+#vt-draw-canvas {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 2147483646 !important;
+  cursor: crosshair !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+#vt-draw-canvas.vt-cursor-mode { pointer-events: none !important; cursor: default !important; }
+
+#vt-draw-bar {
+  position: fixed !important;
+  top: 18px !important;
+  right: 18px !important;
+  z-index: 2147483647 !important;
+  background: #ffffff !important;
+  border-radius: 14px !important;
+  box-shadow: 0 10px 34px rgba(0,0,0,.3) !important;
+  padding: 10px !important;
+  width: 188px !important;
+  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif !important;
+  color: #2D3142 !important;
+  user-select: none !important;
+}
+#vt-draw-bar * { box-sizing: border-box !important; }
+.vt-bar-head {
+  display: flex !important; align-items: center !important; justify-content: space-between !important;
+  cursor: move !important; margin-bottom: 8px !important;
+}
+.vt-bar-title { font-size: 12px !important; font-weight: 800 !important; color: #a87652 !important; }
+.vt-bar-x { border: none !important; background: #f1e9dc !important; color: #6a5a44 !important; width: 24px !important; height: 24px !important; border-radius: 7px !important; cursor: pointer !important; font-size: 14px !important; line-height: 1 !important; }
+.vt-bar-x:hover { background: #e7b3b3 !important; color: #6b1d1d !important; }
+.vt-tools-row { display: flex !important; gap: 6px !important; margin-bottom: 8px !important; }
+.vt-dtool {
+  flex: 1 !important; border: 1.5px solid #e0d6c8 !important; background: #fff !important; border-radius: 8px !important;
+  padding: 7px 0 !important; font-size: 15px !important; cursor: pointer !important; text-align: center !important;
+}
+.vt-dtool.active { background: #efe2cf !important; border-color: #c4a07a !important; }
+.vt-swatches { display: flex !important; flex-wrap: wrap !important; gap: 6px !important; margin-bottom: 8px !important; }
+.vt-sw { width: 24px !important; height: 24px !important; border-radius: 50% !important; cursor: pointer !important; border: 2px solid #fff !important; box-shadow: 0 0 0 1px rgba(0,0,0,.15) !important; }
+.vt-sw.active { box-shadow: 0 0 0 2px #2D3142 !important; transform: scale(1.08) !important; }
+.vt-size-row { display: flex !important; align-items: center !important; gap: 8px !important; margin-bottom: 8px !important; }
+.vt-size-row input { flex: 1 !important; }
+.vt-size-row span { font-size: 11px !important; color: #8a7a66 !important; width: 30px !important; text-align: right !important; }
+.vt-bar-clear {
+  width: 100% !important; border: none !important; border-radius: 8px !important; padding: 8px !important;
+  background: #f1e9dc !important; color: #5a4a36 !important; font-size: 12px !important; font-weight: 700 !important; cursor: pointer !important;
+}
+.vt-bar-clear:hover { background: #e7ddc9 !important; }
