@@ -4,109 +4,202 @@
   <meta charset="UTF-8">
   <title>VuliTab</title>
   <link rel="stylesheet" href="popup.css">
-<!-- POPUP CSS LINK HERE -->
 </head>
 <body>
 
-  <!-- ================= LOGIN ================= -->
-  <div class="vt-login" id="loginView">
+  <!-- splash shown until we know auth state, so login never flashes -->
+  <div id="bootView">
+    <div class="boot-logo">VuliTab</div>
+    <div class="boot-spin"></div>
+  </div>
+
+  <!-- login -->
+  <div id="loginView" class="hidden">
     <h1>VuliTab</h1>
-    <p>Log in with your VuliStudy account.</p>
-    <div class="vt-error" id="loginError"></div>
-    <input class="vt-input" id="loginUser" type="text" placeholder="Username" autocomplete="username" autocapitalize="none">
-    <input class="vt-input" id="loginPass" type="password" placeholder="Password" autocomplete="current-password">
-    <button class="vt-btn" id="loginBtn">Log in</button>
-    <div class="vt-login-note">
-      No account yet? VuliTab can't create one — open the <b>VuliStudy</b> app on your phone,
-      create your account there, then log in here with the same username &amp; password.
+    <div class="sub">Log in with your VuliStudy account</div>
+    <div class="login-card">
+      <div class="err" id="loginErr"></div>
+      <input class="field" id="loginUser" type="text" placeholder="Username" autocomplete="username" autocapitalize="none">
+      <input class="field" id="loginPass" type="password" placeholder="Password" autocomplete="current-password">
+      <button class="btn" id="loginBtn">Log in</button>
+      <div class="login-note">No account? VuliTab can't create one — sign up in the VuliStudy app, then log in here.</div>
     </div>
   </div>
 
-  <!-- ================= APP ================= -->
-  <div id="appView" class="hidden">
-    <div class="vt-header">
+  <!-- main shell -->
+  <div id="shell" class="hidden">
+    <div class="app-header">
       <div>
-        <div class="vt-greeting" id="greeting">Welcome back</div>
-        <div class="vt-username"><span id="usernameLabel">—</span><span class="vt-badge hidden" id="premiumBadge">VuliStudy+</span></div>
+        <div class="app-greet" id="greet">Welcome back</div>
+        <div class="app-user" id="userName">—</div>
       </div>
-      <button class="vt-icon-btn" id="logoutBtn" title="Log out">⎋</button>
+      <div class="crown-badge">👑 VuliStudy+</div>
     </div>
 
-    <div class="vt-buddy-wrap">
-      <div class="character-area">
-        <div class="character" id="vtCharacter">
-          <div class="character-shadow"></div>
-          <div class="character-body">
-            <div class="character-eyes"><div class="eye"></div><div class="eye"></div></div>
-            <div class="character-mouth"></div>
+    <div id="views">
+      <!-- ===== TIMER ===== -->
+      <section class="panel active" id="panel-timer">
+        <div class="buddy-wrap">
+          <div class="character-area">
+            <div class="character" id="vtCharacter">
+              <div class="character-shadow"></div>
+              <div class="character-body">
+                <div class="character-eyes"><div class="eye"></div><div class="eye"></div></div>
+                <div class="character-mouth"></div>
+              </div>
+              <div id="vtCosmetics"></div>
+            </div>
           </div>
-          <div id="vtCosmetics"></div>
+          <div class="happy-row">
+            <div class="happy-lbl">Happiness <span id="happyPct">100</span>%</div>
+            <div class="happy-meter"><div class="happy-fill" id="happyFill" style="width:100%"></div></div>
+          </div>
+          <div class="stat-row">
+            <div class="stat"><b id="statMin">0</b><span>minutes</span></div>
+            <div class="stat"><b id="statStreak">0</b><span>day streak</span></div>
+          </div>
         </div>
-      </div>
-      <div class="vt-happy">
-        <div class="vt-happy-label">Happiness: <span id="happyPct">100</span>%</div>
-        <div class="vt-happy-meter"><div class="vt-happy-fill" id="happyFill" style="width:100%"></div></div>
-      </div>
-      <div class="vt-stats">
-        <div class="vt-stat"><b id="statMinutes">0</b><span>minutes</span></div>
-        <div class="vt-stat"><b id="statStreak">0</b><span>day streak</span></div>
-      </div>
-    </div>
 
-    <div class="vt-section">
-      <div class="vt-timer" id="timerDisplay">25:00</div>
-      <div class="vt-session-label" id="sessionLabel">Ready to focus</div>
+        <div class="timer-big" id="timerBig">25:00</div>
+        <div class="timer-label" id="timerLabel">Ready to focus</div>
 
-      <div class="vt-tabs" id="modeTabs">
-        <button class="vt-tab active" data-mode="focus">Focus</button>
-        <button class="vt-tab" data-mode="stopwatch">Stopwatch</button>
-        <button class="vt-tab" data-mode="long">Break</button>
-      </div>
-
-      <div class="vt-duration" id="durationRow">
-        <button class="vt-dur" data-min="15">15m</button>
-        <button class="vt-dur active" data-min="25">25m</button>
-        <button class="vt-dur" data-min="50">50m</button>
-      </div>
-
-      <div class="vt-controls">
-        <button class="vt-btn" id="primaryBtn">Start Focus</button>
-        <button class="vt-btn danger hidden" id="stopBtn">Stop</button>
-      </div>
-
-      <div class="vt-tools">
-        <button class="vt-tool" id="drawTool"><span class="ic">✏️</span><span>Draw on page<small>Annotate this tab</small></span></button>
-        <button class="vt-tool on" id="guardTool"><span class="ic">🛡️</span><span>Distraction guard<small id="guardSub">On</small></span></button>
-        <button class="vt-tool on" id="lockTool"><span class="ic">🔒</span><span>Focus Lock<small id="lockSub">On</small></span></button>
-        <button class="vt-tool" id="reportTool"><span class="ic">📊</span><span>Focus Report<small>Your last session</small></span></button>
-      </div>
-    </div>
-
-    <!-- Focus Report panel -->
-    <div id="reportPanel" class="hidden">
-      <div class="vt-divider"></div>
-      <div class="vt-section">
-        <div class="vt-score" id="reportScore">—</div>
-        <div class="vt-session-label">Focus score (last session)</div>
-        <div class="vt-report-bars" id="reportBars">
-          <div class="vt-rb-prod" style="width:33%"></div>
-          <div class="vt-rb-dist" style="width:33%"></div>
-          <div class="vt-rb-neut" style="width:34%"></div>
+        <div class="mode-pills" id="modePills">
+          <button class="pill active" data-mode="focus">Focus</button>
+          <button class="pill" data-mode="stopwatch">Stopwatch</button>
+          <button class="pill" data-mode="long">Break</button>
         </div>
-        <div class="vt-report-legend">
-          <span>🟢 <span id="legProd">0m</span> productive</span>
-          <span>🔴 <span id="legDist">0m</span> distracted</span>
+
+        <div id="minutesArea">
+          <div class="minutes-row">
+            <button class="step" id="minDown">−</button>
+            <div class="minutes-val"><span id="minVal">25</span><small> min</small></div>
+            <button class="step" id="minUp">+</button>
+          </div>
+          <div class="quick-chips" id="quickChips">
+            <button class="chip" data-min="15">15</button>
+            <button class="chip active" data-min="25">25</button>
+            <button class="chip" data-min="45">45</button>
+            <button class="chip" data-min="60">60</button>
+          </div>
         </div>
-        <div id="historyList" style="margin-top:10px;"></div>
-      </div>
+
+        <div class="row">
+          <button class="btn" id="primaryBtn">Start Focus</button>
+          <button class="btn stop hidden" id="stopBtn" style="flex:.55">Stop</button>
+        </div>
+      </section>
+
+      <!-- ===== TASKS ===== -->
+      <section class="panel" id="panel-tasks">
+        <div class="task-add">
+          <input id="taskInput" type="text" placeholder="Add a task…" maxlength="120">
+          <button id="taskAddBtn">＋</button>
+        </div>
+        <div class="task-list" id="taskList"></div>
+      </section>
+
+      <!-- ===== DRAW ===== -->
+      <section class="panel" id="panel-draw">
+        <div class="card">
+          <h3>Draw on the current page</h3>
+          <p style="font-size:13px;color:#5a4a36;line-height:1.5;margin-bottom:14px;">
+            Sketch, underline and annotate right on top of the page you're reading.
+            A floating toolbar (pen, eraser, colours, cursor) appears centred on the page — drag it anywhere, hit ✕ to clear &amp; close. Drawings are temporary.
+          </p>
+          <button class="btn" id="drawBtn">✏️ Start drawing on this page</button>
+          <p style="font-size:11px;color:#9a8a74;margin-top:12px;text-align:center;">
+            Note: browsers block drawing on <b>chrome://</b> pages, the Web Store and the built-in PDF viewer.
+          </p>
+        </div>
+      </section>
+
+      <!-- ===== STATS ===== -->
+      <section class="panel" id="panel-stats">
+        <div id="statsPremiumSlot"></div>
+
+        <div class="card">
+          <h3>Last session</h3>
+          <div class="score-big" id="repScore">—</div>
+          <div class="bars" id="repBars"></div>
+          <div class="legend">
+            <span>🟢 <span id="repProd">0m</span> focused</span>
+            <span>🔴 <span id="repDist">0m</span> distracted</span>
+          </div>
+          <div class="replay" id="repReplay"></div>
+        </div>
+
+        <div class="card">
+          <h3>Last 14 days</h3>
+          <div class="daychart" id="dayChart"></div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:#6a5a44;margin-top:10px;">
+            <span>🔥 <b id="anStreak">0</b> streak</span>
+            <span>⏰ Peak: <b id="anPeak">—</b></span>
+          </div>
+          <div style="margin-top:10px;">
+            <div style="font-size:11px;color:#8a7a66;margin-bottom:4px;">Most distracting</div>
+            <div id="topSites"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Achievements</h3>
+          <div class="ach-grid" id="achGrid"></div>
+        </div>
+
+        <div class="card">
+          <h3>History</h3>
+          <div id="histList"></div>
+        </div>
+      </section>
+
+      <!-- ===== SETTINGGS ===== -->
+      <section class="panel" id="panel-settings">
+        <div id="setPremiumSlot"></div>
+
+        <div class="card">
+          <h3>Focus guard</h3>
+          <div class="toggle-row">
+            <div><div class="tl">distraction guard</div><div class="ts" id="guardSub">Checks each tab you open</div></div>
+            <div class="switch on" id="guardSwitch"></div>
+          </div>
+          <div class="toggle-row">
+            <div><div class="tl">Focus Lock</div><div class="ts">Gate distracting pages mid-session</div></div>
+            <div class="switch on" id="lockSwitch"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Website blocking <span style="font-weight:600;color:#9a8a74;font-size:11px;">(during sessions)</span></h3>
+          <div class="bl-modes" id="blModes">
+            <button class="bl-mode active" data-mode="off">Off</button>
+            <button class="bl-mode" data-mode="block">Block list</button>
+            <button class="bl-mode" data-mode="allow">Allow only</button>
+          </div>
+          <div class="task-add">
+            <input id="blInput" type="text" placeholder="e.g. youtube.com" maxlength="60">
+            <button id="blAddBtn">＋</button>
+          </div>
+          <div class="bl-list" id="blList"></div>
+        </div>
+
+        <div class="card">
+          <button class="btn ghost" id="logoutBtn">Log out</button>
+        </div>
+        <div class="foot-note">VuliTab — linked to VuliStudy. Timers, tasks &amp; cosmetics sync across phne and browser.</div>
+      </section>
     </div>
 
-    <div class="vt-foot">
-      Linked to your VuliStudy app — timers stay in sync across phone &amp; browser.
-    </div>
+    <!-- bottom tab nav -->
+    <nav class="tabbar">
+      <button class="tabbtn active" data-tab="timer"><span class="ti">⏱️</span>Timer</button>
+      <button class="tabbtn" data-tab="tasks"><span class="ti">✅</span>Tasks</button>
+      <button class="tabbtn" data-tab="draw"><span class="ti">🎨</span>Draw</button>
+      <button class="tabbtn" data-tab="stats"><span class="ti">📊</span>Stats</button>
+      <button class="tabbtn" data-tab="settings"><span class="ti">⚙️</span>Settings</button>
+    </nav>
   </div>
 
-  <div class="vt-toast" id="toast"></div>
+  <div class="toast" id="toast"></div>
   <script src="popup.js"></script>
 </body>
 </html>
