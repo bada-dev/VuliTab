@@ -1,5 +1,4 @@
-/* add !important everywhere to make it override everything
-*/
+
 #vt-draw-canvas {
   position: fixed !important;
   inset: 0 !important;
@@ -15,18 +14,21 @@
 
 #vt-draw-bar {
   position: fixed !important;
-  top: 18px !important;
-  right: 18px !important;
+  top: 72px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
   z-index: 2147483647 !important;
-  background: #ffffff !important;
-  border-radius: 14px !important;
-  box-shadow: 0 10px 34px rgba(0,0,0,.3) !important;
-  padding: 10px !important;
-  width: 188px !important;
+  background: rgba(255,255,255,.97) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 14px 44px rgba(0,0,0,.35) !important;
+  padding: 12px !important;
+  width: 210px !important;
   font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif !important;
   color: #2D3142 !important;
   user-select: none !important;
+  animation: vtBarIn .28s cubic-bezier(.34,1.56,.64,1) !important;
 }
+@keyframes vtBarIn { from { opacity: 0; transform: translateX(-50%) scale(.9); } to { opacity: 1; transform: translateX(-50%) scale(1); } }
 #vt-draw-bar * { box-sizing: border-box !important; }
 .vt-bar-head {
   display: flex !important; align-items: center !important; justify-content: space-between !important;
