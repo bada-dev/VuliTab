@@ -1,0 +1,69 @@
+// floating, draggable buddy + timer appears on the page during a session
+// Driven by 'vtHud' messages from the background worker.
+(() => {
+  if (window.__vtHudLoaded) return;
+  window.__vtHudLoaded = true;
+
+  const host = document.createElement('div');
+  host.style.cssText = 'all:initial;position:fixed;z-index:2147483646;';
+  const root = host.attachShadow({ mode: 'open' });
+  (document.documentElement || document.body).appendChild(host);
+
+  root.innerHTML = `
+    <style>
+      * { box-sizing: border-box; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+      .hud {
+        position: fixed; right: 18px; bottom: 18px; display: none; align-items: center; gap: 10px;
+        background: linear-gradient(135deg,#c4a07a,#a5845a); color: #fff; padding: 9px 12px 9px 9px;
+        border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.32); cursor: grab; user-select: none;
+        transform: translateY(20px); opacity: 0; transition: opacity .3s, transform .3s;
+      }
+      .hud.show { display: flex; opacity: 1; transform: translateY(0); }
+      .b { position: relative; width: 34px; height: 38px; flex: none; }
+      .bb { width: 100%; height: 100%; background: linear-gradient(135deg,#B8865C,#986652); border-radius: 48% 52% 48% 52% / 52% 55% 45% 48%; border: 1.5px solid rgba(0,0,0,.2); position: relative; }
+      .be { position: absolute; top: 13px; left: 50%; transform: translateX(-50%); display: flex; gap: 7px; }
+      .be i { width: 5px; height: 5px; background: #2D3142; border-radius: 50%; display: block; }
+      .bm { position: absolute; bottom: 11px; left: 50%; transform: translateX(-50%); width: 9px; height: 2px; background: #2D3142; border-radius: 2px; }
+      .info { line-height: 1.15; }
+      .t { font-size: 17px; font-weight: 800; }
+      .l { font-size: 10px; opacity: .9; }
+      .x { background: rgba(255,255,255,.25); border: none; color: #fff; width: 22px; height: 22px; border-radius: 7px; cursor: pointer; font-size: 12px; }
+    </style>
+    <div class="hud" id="hud">
+      <div class="b"><div class="bb"><div class="be"><i></i><i></i></div><div class="bm"></div></div></div>
+      <div class="info"><div class="t" id="hudT">0:00</div><div class="l" id="hudL">Focusing</div></div>
+      <button class="x" id="hudX" title="Hide">✕</button>
+    </div>
+  `;
+
+  const hud = root.getElementById('hud');
+  let sess = null, anchorAt = 0, timer = null, dismissed = false;
+
+  function fmt(t) { t = Math.max(0, Math.floor(t)); const h = (t / 3600) | 0, m = ((t % 3600) / 60) | 0, s = t % 60, p = (n) => String(n).padStart(2, '0'); return h ? `${h}:${p(m)}:${p(s)}` : `${m}:${p(s)}`; }
+  function render() {
+    if (!sess) return;
+    const drift = ((Date.now() - anchorAt) / 1000) | 0;
+    const elapsed = (sess.elapsed_seconds || 0) + drift;
+    if (sess.mode === 'stopwatch') { root.getElementById('hudT').textContent = fmt(elapsed); root.getElementById('hudL').textContent = 'Tracking'; }
+    else { const rem = Math.max(0, (sess.target_seconds || 0) - elapsed); root.getElementById('hudT').textContent = fmt(rem); root.getElementById('hudL').textContent = rem <= 0 ? 'Done! 🎉' : (sess.mode === 'long' ? 'On a break' : 'Focusing'); }
+  }
+  function show(session) {
+    if (dismissed) return;
+    sess = session; anchorAt = Date.now();
+    hud.classList.add('show'); render();
+    if (!timer) timer = setInterval(render, 1000);
+  }
+
+  root.getElementById('hudX').onclick = () => { dismissed = true; hud.classList.remove('show'); if (timer) { clearInterval(timer); timer = null; } };
+
+  // drag
+  let dragging = false, ox = 0, oy = 0;
+  hud.addEventListener('mousedown', (e) => { if (e.target.id === 'hudX') return; dragging = true; const r = hud.getBoundingClientRect(); ox = e.clientX - r.left; oy = e.clientY - r.top; hud.style.cursor = 'grabbing'; e.preventDefault(); });
+  window.addEventListener('mousemove', (e) => { if (!dragging) return; hud.style.left = (e.clientX - ox) + 'px'; hud.style.top = (e.clientY - oy) + 'px'; hud.style.right = 'auto'; hud.style.bottom = 'auto'; });
+  window.addEventListener('mouseup', () => { dragging = false; hud.style.cursor = 'grab'; });
+
+  chrome.runtime.onMessage.addListener((msg) => {
+    if (!msg || msg.type !== 'vtHud') return;
+    if (msg.session && msg.session.status === 'running') show(msg.session);
+  });
+})();
