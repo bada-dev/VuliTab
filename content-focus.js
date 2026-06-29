@@ -1,5 +1,5 @@
-// check if the current whatever the user on is productive, EVEN using AI to check if it is, ONLY IF PREMIUM
-(() => {
+
+(() => { // check if on window
   if (window.__vtFocusLoaded) return;
   window.__vtFocusLoaded = true;
 
@@ -39,9 +39,10 @@
       .card h2 { margin: 14px 0 4px; font-size: 20px; color: #2D3142; }
       .card p { margin: 0 0 18px; font-size: 13px; color: #6a5a44; line-height: 1.5; }
       .gate-btns { display: flex; flex-direction: column; gap: 9px; }
-      .primary { background: linear-gradient(135deg,#c4a07a,#a87652); color: #fff; }
+      .primary { background: linear-gradient(135deg,#6BCF7F,#5ABF6F); color: #fff; box-shadow: 0 4px 12px rgba(107,207,127,.35); }
       .ghost { background: #ece3d4; color: #5a4a36; }
       .link { background: none; color: #9a8a74; font-size: 12px; cursor: pointer; border: none; }
+      .blocked-ic { font-size: 46px; }
 
       /* mini buddy */
       .buddy { position: relative; width: 92px; height: 104px; margin: 0 auto; }
@@ -75,10 +76,22 @@
         </div>
       </div>
     </div>
+
+    <div class="gate" id="block">
+      <div class="card">
+        <div class="blocked-ic">🚫</div>
+        <h2>Site blocked during your session</h2>
+        <p><b id="blockDomain"></b> is off-limits while you're studying. You've got this — head back and keep your streak alive.</p>
+        <div class="gate-btns">
+          <button class="btn primary" id="blockLeave">Take me back</button>
+        </div>
+      </div>
+    </div>
   `;
 
   const promptEl = root.getElementById('prompt');
   const gateEl = root.getElementById('gate');
+  const blockEl = root.getElementById('block');
   let promptTimer = null;
 
   function showPrompt(reason, premium) {
@@ -104,20 +117,19 @@
   root.getElementById('noBtn').onclick = () => answer(false);
   root.getElementById('dismissBtn').onclick = hidePrompt;
 
+  function showBlock(domain) { root.getElementById('blockDomain').textContent = domain || 'This site'; blockEl.classList.add('show'); }
+  function hideBlock() { blockEl.classList.remove('show'); }
+
   root.getElementById('gateBack').onclick = () => { hideGate(); chrome.runtime.sendMessage({ type: 'gateAction', action: 'back' }); };
   root.getElementById('gateAllow').onclick = () => { hideGate(); chrome.runtime.sendMessage({ type: 'gateAction', action: 'allow' }); };
   root.getElementById('gateSnooze').onclick = () => { hideGate(); chrome.runtime.sendMessage({ type: 'gateAction', action: 'snooze' }); };
+  root.getElementById('blockLeave').onclick = () => { hideBlock(); chrome.runtime.sendMessage({ type: 'blockAction', action: 'leave' }); };
 
   chrome.runtime.onMessage.addListener((msg) => {
     if (!msg || !msg.type) return;
     if (msg.type === 'vtShowPrompt') showPrompt(msg.reason, msg.premium);
     else if (msg.type === 'vtShowGate') showGate(msg.reason);
-    else if (msg.type === 'vtHide') { hidePrompt(); hideGate(); }
-    else if (msg.type === 'vtFlash') {
-      // brief positive confirmation for premium "productive" verdicts
-      root.getElementById('promptSub').textContent = '';
-      showPrompt('✓ ' + (msg.reason || 'Productive — keep going!'), true);
-      setTimeout(hidePrompt, 1800);
-    }
+    else if (msg.type === 'vtShowBlock') showBlock(msg.domain);
+    else if (msg.type === 'vtHide') { hidePrompt(); hideGate(); hideBlock(); }
   });
 })();
