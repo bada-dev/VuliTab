@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "VuliTab",
-  "version": "1.0.1",
-  "description": "VuliTab — the VuliStudy study buddy, in your browser. Log in, keep your focus timer in sync with the app, draw on any page, and stay on task.",
-  "permissions": ["storage", "tabs", "scripting", "activeTab", "alarms"],
+  "version": "2.0.0",
+  "description": "VuliTab — the VuliStudy study buddy in your browser. Syncs with acc",
+  "permissions": ["storage", "tabs", "scripting", "activeTab", "alarms", "webNavigation"],
   "host_permissions": [
     "https://studybuddy-r616.onrender.com/*",
     "http://*/*",
@@ -15,7 +15,7 @@
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*"],
-      "js": ["content-focus.js"],
+      "js": ["content-focus.js", "content-hud.js"],
       "run_at": "document_idle",
       "all_frames": false
     }
